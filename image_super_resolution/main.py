@@ -1,29 +1,12 @@
-
-
-```python
 import sys,keras,cv2,numpy as np,matplotlib,skimage
-
-```
-
-
-```python
-#import necessary packages
 from keras.models import Sequential
 from keras.layers import  Conv2D,Input
 from keras.optimizers import  SGD,Adam
 from skimage.measure import  compare_ssim as ssim
-```
-
-
-```python
 from matplotlib import pyplot as plt
 import math, os
 #python magic function
 
-```
-
-
-```python
 #define a function to peak signal to noise ratio PNSR
 def psnr(target,ref):
     #assume RGB img
@@ -48,11 +31,7 @@ def compare_images(target,ref):
     scores.append(mse(target,ref))
     scores.append(ssim(target,ref,multichannel=True))
     return scores
-    
-```
 
-
-```python
 #prepare degraded imgs by ntroducng quality distortions via resizing
 def prepare_images(path,factor):
     #loop thru the files in a dir
@@ -70,13 +49,10 @@ def prepare_images(path,factor):
         #save the img
         print('saving {}'.format(file))
         cv2.imwrite('images/{}'.format(file),img)
-```
 
-
-```python
 prepare_images('source/',2)
-```
-
+#results - output
+'''
     saving baboon.bmp
     saving baby_GT.bmp
     saving barbara.bmp
@@ -95,9 +71,8 @@ prepare_images('source/',2)
     saving woman_GT.bmp
     saving zebra.bmp
     
+'''
 
-
-```python
 #testing the generated images using the image quality metrics
 for file in os.listdir('images/'):
     #open  target  and ref imgs
@@ -107,8 +82,7 @@ for file in os.listdir('images/'):
     scores = compare_images(target,ref)
     #print all 3 scores
     print('{}\nPSNR:{}\nMSE:{}\nSSIM:{}\n'.format(file,scores[0],scores[1],scores[2]))
-```
-
+'''
     baboon.bmp
     PSNR:22.1570840834
     MSE:1187.11613333
@@ -193,10 +167,4 @@ for file in os.listdir('images/'):
     PSNR:27.9098406393
     MSE:315.658545953
     SSIM:0.891165620933
-    
-    
-
-
-```python
-
-```
+ '''     
