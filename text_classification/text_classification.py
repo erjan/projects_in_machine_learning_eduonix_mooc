@@ -1,25 +1,11 @@
-
-
-```python
 import sys
 import nltk
 import sklearn, pandas as pd, numpy as np
-
-```
-
-
-```python
 #load the dataset of sms msgs
 df = pd.read_table('SMSSpamCollection',header = None,encoding='utf-8')
-
-```
-
-
-```python
 print(df.info())
 print("------------------\n")
 print(df.head())
-```
 
     <class 'pandas.core.frame.DataFrame'>
     RangeIndex: 5572 entries, 0 to 5571
@@ -38,13 +24,10 @@ print(df.head())
     3   ham  U dun say so early hor... U c already then say...
     4   ham  Nah I don't think he goes to usf, he lives aro...
     
-
-
-```python
 #check class distr-n
 classes = df[0]
 print(classes.value_counts())
-```
+
 
     ham     4825
     spam     747
@@ -52,29 +35,19 @@ print(classes.value_counts())
     
 
 ## 2. Preprocess the data
-
-
-```python
 #convert class lables to  binary values , 0,1
 from sklearn.preprocessing import  LabelEncoder
 encoder = LabelEncoder()
 Y = encoder.fit_transform(classes)
-```
-
-
-```python
 print(Y[:10])
-```
+
 
     [0 0 1 0 0 1 0 0 1 1]
     
 
-
-```python
  #store the sms msgs data
 text_messages = df[1]# 2nd column - the actual smski!
 print(text_messages[:10])
-```
 
     0    Go until jurong point, crazy.. Available only ...
     1                        Ok lar... Joking wif u oni...
@@ -89,8 +62,6 @@ print(text_messages[:10])
     Name: 1, dtype: object
     
 
-
-```python
 #use reg exp to replace emails, urls, phones other numbers, symbols
 #replace email adress with 'emailaddr'
 processed = text_messages.str.replace(r'^.+@[^\.].*\.[a-z]{2,}$', 'emailaddr')
@@ -104,13 +75,7 @@ processed = processed.str.replace(r'[^\w\d\s]', ' ')
 processed = processed.str.replace(r'\s+', ' ')
 processed = processed.str.replace(r'^\s+|\s+?$', '')
 processed = processed.str.lower()
-
-```
-
-
-```python
 print(processed)
-```
 
     0       go until jurong point crazy available only in ...
     1                                 ok lar joking wif u oni
@@ -176,19 +141,11 @@ print(processed)
     Name: 1, Length: 5572, dtype: object
     
 
-
-```python
 #remove the stopwords from txt msgs
 from nltk.corpus import stopwords
-
-```
-
-
-```python
 sw = set(stopwords.words('english'))
 processed = processed.apply(lambda x: ' '.join(term for term in x.split() if term not in sw))
 print(processed)
-```
 
     0       go jurong point crazy available bugis n great ...
     1                                 ok lar joking wif u oni
@@ -253,18 +210,10 @@ print(processed)
     5571                                       rofl true name
     Name: 1, Length: 5572, dtype: object
     
-
-
-```python
 #remove word stems using porter stemmer
 ps = nltk.PorterStemmer()
 processed =  processed.apply(lambda x: ' '.join(ps.stem(term) for  term in x.split()))
-```
-
-
-```python
 print(processed)
-```
 
     0       go jurong point crazi avail bugi n great world...
     1                                   ok lar joke wif u oni
@@ -330,8 +279,6 @@ print(processed)
     Name: 1, Length: 5572, dtype: object
     
 
-
-```python
 from nltk.tokenize import word_tokenize
 #ccreating a bag of words model
 all_words = []
@@ -341,26 +288,15 @@ for message in processed:
         all_words.append(w)
 
 all_words = nltk.FreqDist(all_words)
-```
-
-
-```python
 print("Number of words:{}".format(len(all_words)))
 print('most common words:{}'.format(all_words.most_common(15)))
-```
+
 
     Number of words:6557
     most common words:[(u'number', 3072), (u'u', 1207), (u'call', 679), (u'go', 456), (u'get', 451), (u'ur', 391), (u'gt', 318), (u'lt', 316), (u'come', 304), (u'ok', 293), (u'free', 284), (u'day', 276), (u'know', 275), (u'love', 266), (u'like', 261)]
-    
 
-
-```python
 #use the 1500 most common words as features
 word_features = list(all_words.keys())[:1500]
-```
-
-
-```python
 #define a find_feature function
 def find_feature(message):
     words = word_tokenize(message)
@@ -368,43 +304,22 @@ def find_feature(message):
     for word in word_features:
         features[word]=(word in words)
     return features
-```
-
-
-```python
 #see results
 features = find_feature(processed[0])
 for key,value in features.items():
     if value == True:
         print key
-```
 
     avail
     buffet
     world
     great
-    
 
-
-```python
 processed[0]
-```
-
-
 
 
     u'go jurong point crazi avail bugi n great world la e buffet cine got amor wat'
 
-
-
-
-```python
-features
-
-```
-
-
-```python
 #find features for all messages
 messages = zip(processed, Y)
 #define a  seed for reprod-y
@@ -413,15 +328,12 @@ np.random.seed = seed
 np.random.shuffle(messages)
 #call  find_features function for each sms mesgs
 featuresets = [(find_feature(text), label) for (text,label) in messages]
-```
 
-
-```python
 from sklearn import model_selection
 training ,testing = model_selection.train_test_split(featuresets,test_size = 0.25,random_state =seed)
 print('training:{}'.format(len(training)))
 print('testing:{}'.format(len(testing)))
-```
+
 
     training:4179
     testing:1393
@@ -429,9 +341,6 @@ print('testing:{}'.format(len(testing)))
 
 ## 4.scikitlearn classfiers with NLTK
 
-
-
-```python
 from sklearn.neighbors import  KNeighborsClassifier
 from sklearn.tree import  DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
@@ -439,10 +348,7 @@ from sklearn.linear_model import  LogisticRegression, SGDClassifier
 from sklearn.naive_bayes import  MultinomialNB
 from sklearn.svm import  SVC
 from sklearn.metrics import classification_report,accuracy_score,confusion_matrix
-```
 
-
-```python
 #define models to train
 names = ['K nearest neighbors', 'Decision tree', 'Random forest', 'logistic regression', 'SGD classifier', 'Naive bayes', 'SVM linear']
 classifiers = [
@@ -455,12 +361,8 @@ classifiers = [
     SVC(kernel='linear')
 ]
 models = zip(names, classifiers)
-```
 
-
-```python
 print(models)
-```
 
     [('K nearest neighbors', KNeighborsClassifier(algorithm='auto', leaf_size=30, metric='minkowski',
                metric_params=None, n_jobs=None, n_neighbors=5, p=2,
@@ -487,10 +389,6 @@ print(models)
       decision_function_shape='ovr', degree=3, gamma='auto_deprecated',
       kernel='linear', max_iter=-1, probability=False, random_state=None,
       shrinking=True, tol=0.001, verbose=False))]
-    
-
-
-```python
 #wrap models in NLTK
 from nltk.classify.scikitlearn import  SklearnClassifier
 for name,model in models:
@@ -499,11 +397,6 @@ for name,model in models:
     accuracy = nltk.classify.accuracy(nltk_model,testing)*100 
     print('{}:accuracy:{}'.format(name,accuracy))
     
-    
-
-
-```
-
     K nearest neighbors:accuracy:94.472361809
     Decision tree:accuracy:95.7645369706
     Random forest:accuracy:96.2670495334
@@ -511,10 +404,7 @@ for name,model in models:
     SGD classifier:accuracy:96.5541995693
     Naive bayes:accuracy:95.9798994975
     SVM linear:accuracy:96.5541995693
-    
 
-
-```python
 #ensemble method  voting classifier
 from sklearn.ensemble import  VotingClassifier
 #define models to train
@@ -530,21 +420,13 @@ nltk_ensemble = SklearnClassifier(VotingClassifier(estimators = models,voting='h
 nltk_ensemble.train(training)
 accuracy = nltk.classify.accuracy(nltk_ensemble,testing)*100
 print('ensemble method accuracy :{}'.format(accuracy))
-```
 
     ensemble method accuracy :96.9131371141
-    
 
-
-```python
 #make class label prediction foro testing set
 txt_features,labels = zip(*testing)
 prediction = nltk_ensemble.classify_many(txt_features)
 
-```
-
-
-```python
 #print a confusion matrix & a classification report
 print(classification_report(labels,prediction))
 pd.DataFrame(
@@ -552,7 +434,7 @@ confusion_matrix(labels,prediction),
 index = [['actual','actual'],['ham','spam']],
 columns = [['predicted','predicted'], ['ham','spam']]
 )
-```
+
 
                   precision    recall  f1-score   support
     
@@ -563,54 +445,6 @@ columns = [['predicted','predicted'], ['ham','spam']]
        macro avg       0.97      0.89      0.92      1393
     weighted avg       0.97      0.97      0.97      1393
     
-    
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead tr th {
-        text-align: left;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr>
-      <th></th>
-      <th></th>
-      <th colspan="2" halign="left">predicted</th>
-    </tr>
-    <tr>
-      <th></th>
-      <th></th>
-      <th>ham</th>
-      <th>spam</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th rowspan="2" valign="top">actual</th>
-      <th>ham</th>
-      <td>1210</td>
-      <td>3</td>
-    </tr>
-    <tr>
-      <th>spam</th>
-      <td>40</td>
-      <td>140</td>
-    </tr>
-  </tbody>
-</table>
-</div>
 
 
 
