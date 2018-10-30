@@ -443,12 +443,4 @@ columns = [['predicted','predicted'], ['ham','spam']]
     
        micro avg       0.97      0.97      0.97      1393
        macro avg       0.97      0.89      0.92      1393
-    weighted avg       0.97      0.97      0.97      1393
-    
-
-
-
-
-```python
-
-```
+    weighted avg       0.97      0.97      0.97      1393    
