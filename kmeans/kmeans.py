@@ -1,49 +1,22 @@
 #!/usr/bin/env python
 # coding: utf-8
-
 # In[28]:
-
-
 import sys, sklearn,matplotlib,numpy as np
-
-
 # In[29]:
-
-
 from keras.datasets import mnist
-
-
 # In[30]:
-
-
 (x_train,y_train), (x_test,y_test) = mnist.load_data()
-
-
 # In[31]:
-
-
 print('training data:{}'.format(x_train.shape))
 print('training labels:{}'.format(y_train.shape))
-
-
 # In[32]:
-
-
 print('testing data: {}'.format(x_test.shape))
 print('testing labels: {}'.format(y_test.shape))
-
-
 # In[33]:
-
-
 import matplotlib.pyplot as plt
 #python magic function
 get_ipython().magic(u'matplotlib inline')
-
-
 # In[34]:
-
-
 #create a fgure 3x3 subplots using pyplot
 fig,axs = plt.subplots(3,3,figsize=(12,12))
 plt.gray()
@@ -54,70 +27,34 @@ for i, ax in enumerate(axs.flat):
     ax.set_title('number {}'.format(y_train[i]))
 #display the figure
 fig.show()
-
-
 # In[35]:
-
-
 #preprocessing images
 #convert each image to 1 dim array
 X = x_train.reshape(len(x_train), -1)
 Y = y_train
-
-
 # In[36]:
-
-
 print X.shape
-
-
 # In[37]:
-
-
 print x_train.shape
-
-
 # In[38]:
-
-
 #normalize the data to 0-1
 X[0]
-
-
 # In[39]:
-
-
 X = X.astype(float)/255.
 print X.shape
-
-
 # In[40]:
-
-
 print(X[0].shape)
 print(X[0])
-
-
 # In[41]:
-
-
 from sklearn.cluster import MiniBatchKMeans
 n_digits = len(np.unique(y_test))
 print(n_digits)
 #init kmeans model
 kmeans = MiniBatchKMeans(n_clusters =n_digits)
 kmeans.fit(X)
-
-
 # In[42]:
-
-
 kmeans.labels_[:20]
-
-
 # In[43]:
-
-
 def infer_cluster_labels(kmeans,actual_labels):
     '''
     associate most probable label with each  cluster in kmeans model
@@ -146,24 +83,12 @@ def infer_cluster_labels(kmeans,actual_labels):
     return inferred_labels
     
         
-
-
 # In[44]:
-
-
 array = np.ones((1,3))
 print(array.shape)
-
-
 # In[45]:
-
-
 np.bincount(np.squeeze(array).astype(np.uint8))
-
-
 # In[46]:
-
-
 def infer_data_labels(X_labels, cluster_labels):
     predicted_labels = np.zeros(len(X_labels)).astype(np.uint8)
     for i , cluster in enumerate(X_labels):
@@ -171,27 +96,15 @@ def infer_data_labels(X_labels, cluster_labels):
             if cluster in value:
                 predicted_labels[i]= key
     return predicted_labels
-
-
 # In[47]:
-
-
 #test the infer cluster labels
 cluster_labels = infer_cluster_labels(kmeans,Y)
-
-
 # In[48]:
-
-
 X_clusters = kmeans.predict(X)
 predicted_labels = infer_data_labels(X_clusters, cluster_labels)
 print predicted_labels[:20]
 print Y[:20]
-
-
 # In[49]:
-
-
 #optimizing & evaluating the clustering algo
 from sklearn import metrics
 def calculate_metrics(estimator,data,labels):
@@ -199,11 +112,7 @@ def calculate_metrics(estimator,data,labels):
     print("number of clusters:{}".format(estimator.n_clusters))
     print("inertia:{}".format(estimator.inertia_))
     print("homogeneity: {}".format(metrics.homogeneity_score(labels,estimator.labels_)))
-
-
 # In[50]:
-
-
 clusters  = [10,16,36,64,144,256]
 #test diff numbers of clusters
 for n_clusters in clusters:
@@ -217,12 +126,7 @@ for n_clusters in clusters:
     predicted_Y= infer_data_labels(estimator.labels_,cluster_labels)
     #calculate and print accuracy
     print('accuracy:{}\n'.format(metrics.accuracy_score(Y,predicted_Y)))
-    
-
-
 # In[51]:
-
-
 #test kmeans algo on testing dataset
 #convert each image to 1 dim array
 X_test = x_test.reshape(len(x_test),-1)
@@ -237,11 +141,7 @@ predicted_labels = infer_data_labels(test_clusters,cluster_labels)
 
 #calc  and print accuracy
 print("testing accuracy: {}".format(metrics.accuracy_score(y_test, predicted_labels)))
-
-
 # In[ ]:
-
-
 #visualize cluster centroids
 #initialize and fit Kmeans algo
 kmeans = MiniBatchKMeans(n_clusters = 36)
@@ -270,10 +170,3 @@ for i , ax in enumerate(axs.flat):
     ax.axis('off')
 #display the figure
 fig.show()
-
-
-# In[ ]:
-
-
-
-
